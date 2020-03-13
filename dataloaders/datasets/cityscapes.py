@@ -20,7 +20,7 @@ class CityscapesSegmentation(data.Dataset):
         self.labels = {}
 
         self.images_base = os.path.join(self.root, 'leftImg8bit', self.split)
-        self.disparities_base = os.path.join(self.root, 'disparity', self.split)  # 增加了直方图均衡化
+        self.disparities_base = os.path.join(self.root, 'disparity', self.split)
         self.annotations_base = os.path.join(self.root, 'gtFine', self.split)
 
         self.images[split] = self.recursive_glob(rootdir=self.images_base, suffix='.png')
@@ -51,12 +51,7 @@ class CityscapesSegmentation(data.Dataset):
         img_path = self.images[self.split][index].rstrip()
         disp_path = self.disparities[self.split][index].rstrip()
         lbl_path = self.labels[self.split][index].rstrip()
-
         _img = Image.open(img_path).convert('RGB')
-
-        # 转化成深度图
-        # _depth = self.convert_dips_to_depths_cityscapes(disp_path)
-        # _depth = Image.fromarray(_depth)
         _depth = Image.open(disp_path)
         _target = Image.open(lbl_path)
 
@@ -93,7 +88,6 @@ class CityscapesSegmentation(data.Dataset):
     def transform_val(self, sample):
 
         composed_transforms = transforms.Compose([
-            # tr.FixScaleCrop(crop_size=self.args.crop_size),  # 原图大小val
             tr.CropBlackArea(),
             tr.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
             tr.ToTensor()])

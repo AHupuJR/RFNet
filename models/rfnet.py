@@ -4,9 +4,9 @@ from itertools import chain # 串联多个迭代对象
 from .util import _BNReluConv, upsample
 
 
-class SemsegModel(nn.Module):
+class RFNet(nn.Module):
     def __init__(self, backbone, num_classes, use_bn=True):
-        super(SemsegModel, self).__init__()
+        super(RFNet, self).__init__()
         self.backbone = backbone
         self.num_classes = num_classes
         self.logits = _BNReluConv(self.backbone.num_features, self.num_classes, batch_norm=use_bn)

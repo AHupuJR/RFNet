@@ -6,7 +6,7 @@ upsample = lambda x, size: F.interpolate(x, size, mode='bilinear', align_corners
 batchnorm_momentum = 0.01 / 2
 
 
-def get_n_params(parameters):  # 计算总计算量
+def get_n_params(parameters):
     pp = 0
     for p in parameters:
         nn = 1
@@ -27,14 +27,14 @@ class _BNReluConv(nn.Sequential):
                                           kernel_size=k, padding=padding, bias=bias, dilation=dilation))
 
 
-class _Upsample(nn.Module): #decoder 的上采样模块
+class _Upsample(nn.Module):
     def __init__(self, num_maps_in, skip_maps_in, num_maps_out, use_bn=True, k=3):
         super(_Upsample, self).__init__()
         print(f'Upsample layer: in = {num_maps_in}, skip = {skip_maps_in}, out = {num_maps_out}')
-        self.bottleneck = _BNReluConv(skip_maps_in, num_maps_in, k=1, batch_norm=use_bn) #1*1conv 调整维度
-        self.blend_conv = _BNReluConv(num_maps_in, num_maps_out, k=k, batch_norm=use_bn) #3*3混合skip和输入
+        self.bottleneck = _BNReluConv(skip_maps_in, num_maps_in, k=1, batch_norm=use_bn)
+        self.blend_conv = _BNReluConv(num_maps_in, num_maps_out, k=k, batch_norm=use_bn)
 
-    def forward(self, x, skip): # 混合上一步的输入和跳跃连接
+    def forward(self, x, skip):
         skip = self.bottleneck.forward(skip)
         skip_size = skip.size()[2:4]
         x = upsample(x, skip_size)
@@ -72,7 +72,7 @@ class SpatialPyramidPooling(nn.Module):
         num = len(self.spp) - 1
 
         for i in range(1, num):
-            if not self.square_grid:#是否按照原图比例进行池化
+            if not self.square_grid:
                 grid_size = (self.grids[i - 1], max(1, round(ar * self.grids[i - 1])))
                 x_pooled = F.adaptive_avg_pool2d(x, grid_size)
             else:

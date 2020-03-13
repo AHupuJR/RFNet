@@ -9,7 +9,7 @@ from dataloaders import custom_transforms as tr
 from dataloaders import custom_transforms_rgb as tr_rgb
 
 class CitylostfoundSegmentation(data.Dataset):
-    NUM_CLASSES = 20  # small_obstacle index: 19
+    NUM_CLASSES = 20
 
     def __init__(self, args, root=Path.db_root_dir('citylostfound'), split="train"):
 
@@ -21,51 +21,18 @@ class CitylostfoundSegmentation(data.Dataset):
         self.labels = {}
 
         self.images_base = os.path.join(self.root, 'leftImg8bit', self.split)
-        self.disparities_base = os.path.join(self.root,'disparity',self.split)  # 增加了直方图均衡化
+        self.disparities_base = os.path.join(self.root,'disparity',self.split)
         self.annotations_base = os.path.join(self.root, 'gtFine', self.split)
 
-        # 挑选特定图片inference
-        self.val_list = self.args.val_image_names
-        print('inference 特定images的val_list属性')
-        print(type(self.val_list))
-        print(self.val_list)
+        self.images[split] = self.recursive_glob(rootdir=self.images_base, suffix= '.png')
+        self.images[split].sort()
 
-        #0214inference特定图片
-        if self.split =='train' or self.split=='test':
-            self.images[split] = self.recursive_glob(rootdir=self.images_base, suffix= '.png')
-            self.images[split].sort()
+        self.disparities[split] = self.recursive_glob(rootdir=self.disparities_base, suffix= '.png')
+        self.disparities[split].sort()
 
-            self.disparities[split] = self.recursive_glob(rootdir=self.disparities_base, suffix= '.png')
-            self.disparities[split].sort()
-
-            self.labels[split] = self.recursive_glob(rootdir=self.annotations_base,
-                                                     suffix='labelTrainIds.png')
-            self.labels[split].sort()
-
-        else:
-
-            if self.val_list is not None:
-
-                self.images[split] = self.recursive_glob(rootdir=self.images_base, suffix=self.val_list)#'.png')
-                self.images[split].sort()
-
-                self.disparities[split] = self.recursive_glob(rootdir=self.disparities_base, suffix=self.val_list)#'.png')
-                self.disparities[split].sort()
-
-                self.labels[split] = self.recursive_glob(rootdir=self.annotations_base, suffix=self.val_list)#'labelTrainIds.png')
-                self.labels[split].sort()
-
-            else:
-                print('else: val_list is None')
-                self.images[split] = self.recursive_glob(rootdir=self.images_base, suffix= '.png')
-                self.images[split].sort()
-
-                self.disparities[split] = self.recursive_glob(rootdir=self.disparities_base, suffix= '.png')
-                self.disparities[split].sort()
-
-                self.labels[split] = self.recursive_glob(rootdir=self.annotations_base,
-                                                         suffix='labelTrainIds.png')
-                self.labels[split].sort()
+        self.labels[split] = self.recursive_glob(rootdir=self.annotations_base,
+                                                 suffix='labelTrainIds.png')
+        self.labels[split].sort()
 
         self.ignore_index = 255
 
@@ -89,15 +56,8 @@ class CitylostfoundSegmentation(data.Dataset):
         lbl_path = self.labels[self.split][index].rstrip()
 
         _img = Image.open(img_path).convert('RGB')
-
-        # 转化成深度图
-        # _depth = self.convert_dips_to_depths_cityscapes(disp_path)
-        # _depth = Image.fromarray(_depth)
         _depth = Image.open(disp_path)
         _tmp = np.array(Image.open(lbl_path), dtype=np.uint8)
-
-        # relabel lost and found labels
-        # _tmp = tr.Relabel(255, self.ignore_index)(_tmp)
         if self.split == 'train':
             if index < 1036:  # lostandfound
                 _tmp = self.relabel_lostandfound(_tmp)
@@ -114,26 +74,11 @@ class CitylostfoundSegmentation(data.Dataset):
 
         # data augment
         if self.split == 'train':
-            return self.transform_tr(sample)  # Image object
+            return self.transform_tr(sample)
         elif self.split == 'val':
             return self.transform_val(sample), img_path
         elif self.split == 'test':
             return self.transform_ts(sample)
-
-    def convert_dips_to_depths_cityscapes(self, img_disp, baseline = 0.209313, focal_length = 2262.52):
-        img_d = cv2.imread(img_disp, cv2.IMREAD_UNCHANGED).astype(np.float32)
-        img_d[img_d > 0] = (img_d[img_d > 0] - 1) / 256
-        # set baseline and depth
-        depth = (baseline * focal_length) / img_d
-        # set depth range
-        max_depth = 100
-        min_depth = 1e-3
-        depth[depth > max_depth] = max_depth
-        depth[depth < min_depth] = min_depth
-        depth = depth.astype(np.uint8)
-        depth = Image.fromarray(depth)
-
-        return depth
 
 
     def relabel_lostandfound(self, input):
@@ -142,15 +87,6 @@ class CitylostfoundSegmentation(data.Dataset):
         # input = Relabel(255, 20)(input)  # unlabel 20
         input = tr.Relabel(2, 19)(input)  # obstacle  19
         return input
-
-    # def recursive_glob(self, rootdir='.', suffix=''):
-    #     """Performs recursive glob with given suffix and rootdir
-    #         :param rootdir is the root directory
-    #         :param suffix is the suffix to be searched
-    #     """
-    #     return [os.path.join(looproot, filename)
-    #             for looproot, _, filenames in os.walk(rootdir)
-    #             for filename in filenames if filename.endswith(suffix)]
 
     def recursive_glob(self, rootdir='.', suffix=None):
         """Performs recursive glob with given suffix and rootdir
@@ -182,7 +118,6 @@ class CitylostfoundSegmentation(data.Dataset):
     def transform_val(self, sample):
 
         composed_transforms = transforms.Compose([
-            # tr.FixScaleCrop(crop_size=self.args.crop_size),  # 原图大小val
             tr.CropBlackArea(),
             tr.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
             tr.ToTensor()])
@@ -201,7 +136,7 @@ class CitylostfoundSegmentation(data.Dataset):
 
 
 class CitylostfoundSegmentation_rgb(data.Dataset):
-    NUM_CLASSES = 19  # small_obstacle index: 19    2.20用完改回20
+    NUM_CLASSES = 19
 
     def __init__(self, args, root=Path.db_root_dir('citylostfound'), split="train"):
 
@@ -234,16 +169,8 @@ class CitylostfoundSegmentation_rgb(data.Dataset):
 
         img_path = self.files[self.split][index].rstrip()
         lbl_path = self.labels[self.split][index].rstrip()
-        # lbl_path = os.path.join(self.annotations_base,
-        #                         img_path.split(os.sep)[-2],
-        #                         os.path.basename(img_path)[:-15] + 'gtFine_labelIds.png')
-
         _img = Image.open(img_path).convert('RGB')
-
         _tmp = np.array(Image.open(lbl_path), dtype=np.uint8)
-
-        # relabel lost and found labels
-        # _tmp = tr.Relabel(255, self.ignore_index)(_tmp)
         if self.split == 'train':
             if index < 1036:  # lostandfound
                 _tmp = self.relabel_lostandfound(_tmp)
@@ -259,7 +186,7 @@ class CitylostfoundSegmentation_rgb(data.Dataset):
         sample = {'image': _img, 'label': _target}
 
         if self.split == 'train':
-            return self.transform_tr(sample)  # Image object
+            return self.transform_tr(sample)
         elif self.split == 'val':
             return self.transform_val(sample), img_path
         elif self.split == 'test':
@@ -267,9 +194,8 @@ class CitylostfoundSegmentation_rgb(data.Dataset):
 
 
     def relabel_lostandfound(self, input):
-        input = tr.Relabel(0, self.ignore_index)(input)  # background->255 ignore
+        input = tr.Relabel(0, self.ignore_index)(input)
         input = tr.Relabel(1, 0)(input)  # road 1->0
-        # input = Relabel(255, 20)(input)  # unlabel 20
         input = tr.Relabel(2, 19)(input)  # obstacle  19
         return input
 
@@ -297,7 +223,6 @@ class CitylostfoundSegmentation_rgb(data.Dataset):
 
         composed_transforms = transforms.Compose([
             tr_rgb.CropBlackArea(),
-            # tr.FixScaleCrop(crop_size=self.args.crop_size),  # 原图大小val
             tr_rgb.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
             tr_rgb.ToTensor()])
 

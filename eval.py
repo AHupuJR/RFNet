@@ -10,7 +10,7 @@ from PIL import Image
 from dataloaders import make_data_loader
 from dataloaders.utils import decode_seg_map_sequence, Colorize
 from utils.metrics import Evaluator
-from models.semseg import SemsegModel
+from models.rfnet import SemsegModel
 from models.resnet.resnet_single_scale_single_attention import *
 import torch.backends.cudnn as cudnn
 
@@ -161,7 +161,6 @@ def main():
     parser.add_argument('--merge', action='store_true', default=False, help='merge image and label')
     parser.add_argument('--evaluate', action='store_true', default=False, help='evaluate')
     parser.add_argument('--depth', action='store_true', default=False, help='add depth image or not')
-    parser.add_argument('--val-image-names', nargs='+', help='test some images, names are start name of images')
 
 
     args = parser.parse_args()
