@@ -265,6 +265,23 @@ class ResNet(nn.Module):
                 x, skip = x
         return x, skip
 
+    def forward_down(self, rgb):
+        x = self.conv1(rgb)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+
+        features = []
+        x, skip = self.forward_resblock(x, self.layer1)
+        features += [skip]
+        x, skip = self.forward_resblock(x, self.layer2)
+        features += [skip]
+        x, skip = self.forward_resblock(x, self.layer3)
+        features += [skip]
+        x, skip = self.forward_resblock(x, self.layer4)
+        features += [self.spp.forward(skip)]
+        return features
+
     def forward_down_fusion(self, rgb, depth):
         x = self.conv1(rgb)
         x = self.bn1(x)
@@ -329,8 +346,10 @@ class ResNet(nn.Module):
         return x, {'features': features, 'upsamples': upsamples}
 
     def forward(self, rgb, depth = None):
-
-        return self.forward_up(self.forward_down_fusion(rgb, depth))
+        if depth is None:
+            return self.forward_up(self.forward_down(rgb))
+        else:
+            return self.forward_up(self.forward_down_fusion(rgb, depth))
 
     def _load_resnet_pretrained(self, url):
         pretrain_dict = model_zoo.load_url(model_urls[url])
