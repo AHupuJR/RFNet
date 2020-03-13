@@ -1,7 +1,0 @@
-datset:citylostfound
-lr:0.0001
-lr_scheduler:cos
-loss_type:ce
-epoch:200
-base_size:1024
-crop_size:768
