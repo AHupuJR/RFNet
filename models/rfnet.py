@@ -7,7 +7,7 @@ from .util import _BNReluConv, upsample
 class RFNet(nn.Module):
     def __init__(self, backbone, num_classes, use_bn=True):
         super(RFNet, self).__init__()
-        self.backbone = backbone
+        self.  backbone = backbone
         self.num_classes = num_classes
         self.logits = _BNReluConv(self.backbone.num_features, self.num_classes, batch_norm=use_bn)
 

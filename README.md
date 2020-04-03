@@ -76,6 +76,8 @@ Download weights for [Cityscapes](https://drive.google.com/open?id=1NS9Od4m7qB7a
 Download weights for Multi-dataset: [Cityscapes and Lost and Found](https://drive.google.com/open?id=1XxWAE5wpRc55frBcvQTPUdAIz4YbrHOy)
 
 ## Training
+Edit path to your dataset in `mypath.py`.
+
 `python train.py --depth --lr 1e-4 --weight-decay 2.5e-5 --workers 4 --epochs 200 --batch-size 8 --val-batch-size 3 --gpu-ids 0 --checkname test --eval-interval 2 --dataset citylostfound --loss-type ce --use-balanced-weights`
 
 ## Evaluation

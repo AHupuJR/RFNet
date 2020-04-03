@@ -10,7 +10,7 @@ from PIL import Image
 from dataloaders import make_data_loader
 from dataloaders.utils import decode_seg_map_sequence, Colorize
 from utils.metrics import Evaluator
-from models.rfnet import SemsegModel
+from models.rfnet import RFNet
 from models.resnet.resnet_single_scale_single_attention import *
 import torch.backends.cudnn as cudnn
 
@@ -21,10 +21,10 @@ class Validator(object):
         self.args.depth= True
         self.args.evaluate= False
         self.args.merge=False
-        print('self.args.depth')
-        print(self.args.depth)
-        print('self.args.evaluate')
-        print(self.args.evaluate)
+        # print('self.args.depth')
+        # print(self.args.depth)
+        # print('self.args.evaluate')
+        # print(self.args.evaluate)
         # Define Dataloader
         kwargs = {'num_workers':args.workers, 'pin_memory': False}
         _, self.val_loader, _, self.num_class = make_data_loader(args, **kwargs)
@@ -35,7 +35,7 @@ class Validator(object):
 
         # Define network
         self.resnet = resnet18(pretrained=True, efficient=False, use_bn= True)
-        self.model = SemsegModel(self.resnet, num_classes=self.num_class, use_bn=True)
+        self.model = RFNet(self.resnet, num_classes=self.num_class, use_bn=True)
 
         if args.cuda:
             self.model = torch.nn.DataParallel(self.model, device_ids=self.args.gpu_ids)
@@ -119,11 +119,11 @@ def image_merge(image_root, label,save_name):
 def load_my_state_dict(model, state_dict):  # custom function to load model when not all dict elements
     own_state = model.state_dict()
     for name, param in state_dict.items():
-        # if name not in own_state:
-        #     print('{} not in model_state'.format(name))
-        #     continue
-        # if name not in except_list:
-        own_state[name].copy_(param)
+        if name not in own_state:
+            print('{} not in model_state'.format(name))
+            continue
+        else:
+            own_state[name].copy_(param)
 
     return model
 
@@ -154,10 +154,10 @@ def main():
                         help='set the checkpoint name')
     parser.add_argument('--weight-path', type=str, default=None,
                         help='enter your path of the weight')
-    parser.add_argument('--label-save-path', type=str, default='E:/small_obstacle/test/label/',
-                        help='enter your path to save label')
-    parser.add_argument('--merge-label-save-path', type=str, default='E:/small_obstacle/swiftnet_xceptioncityscapestrain_test/merge/',
-                        help='enter your path to save merged label')
+    parser.add_argument('--label-save-path', type=str, default='E:/RFNet/test/label/',
+                        help='path to save label')
+    parser.add_argument('--merge-label-save-path', type=str, default='E:/RFNet/test/merge/',
+                        help='path to save merged label')
     parser.add_argument('--merge', action='store_true', default=False, help='merge image and label')
     parser.add_argument('--evaluate', action='store_true', default=False, help='evaluate')
     parser.add_argument('--depth', action='store_true', default=False, help='add depth image or not')
