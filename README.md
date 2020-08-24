@@ -68,8 +68,8 @@ If you want to use multi-dataset training, mix two datasets and the directory st
 
 ## Pretrained weights
 ### BaiduNetdisk
-Download weights for [Cityscapes](https://pan.baidu.com/s/1m_gen0k1VZhyMSAzdPLiSw), password: 86gs  
-Download weights for Multi-dataset: [Cityscapes and Lost and Found](https://pan.baidu.com/s/1XOREqlp-ETcNcrX7IQ7qtw), password: 526b
+Download weights for [Cityscapes](https://pan.baidu.com/s/1scfm_PQL6v3DiMikMDePkA), password: 4lts  
+Download weights for Multi-dataset: [Cityscapes and Lost and Found](https://pan.baidu.com/s/1KjhafvJC5zHWsnenok50OQ), password: t1mh
 
 ### Google Drive
 Download weights for [Cityscapes](https://drive.google.com/file/d/1nJkYqvQv6BSTciyXHqe66fTzgWe4alr1/view?usp=sharing)    
