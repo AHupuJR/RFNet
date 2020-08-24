@@ -69,11 +69,11 @@ If you want to use multi-dataset training, mix two datasets and the directory st
 ## Pretrained weights
 ### BaiduNetdisk
 Download weights for [Cityscapes](https://pan.baidu.com/s/1m_gen0k1VZhyMSAzdPLiSw), password: 86gs  
-Download weights for Multi-dataset: [Cityscapes and Lost and Found](https://pan.baidu.com/s/14N6Vybu0cTiBOEycpemysQ), password: ypmc
+Download weights for Multi-dataset: [Cityscapes and Lost and Found](https://pan.baidu.com/s/1XOREqlp-ETcNcrX7IQ7qtw), password: 526b
 
 ### Google Drive
-Download weights for [Cityscapes](https://drive.google.com/open?id=1NS9Od4m7qB7a4JGwi94PPJ8VgdT9EmwN)    
-Download weights for Multi-dataset: [Cityscapes and Lost and Found](https://drive.google.com/open?id=1XxWAE5wpRc55frBcvQTPUdAIz4YbrHOy)
+Download weights for [Cityscapes](https://drive.google.com/file/d/1nJkYqvQv6BSTciyXHqe66fTzgWe4alr1/view?usp=sharing)    
+Download weights for Multi-dataset: [Cityscapes and Lost and Found](https://drive.google.com/file/d/1aKa1hb6nVUSd1Gz6NQXk8W03WpUpw3EC/view?usp=sharing)
 
 ## Training
 Edit path to your dataset in `mypath.py`.

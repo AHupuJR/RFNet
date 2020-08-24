@@ -18,13 +18,7 @@ class Validator(object):
     def __init__(self, args):
         self.args = args
         self.time_train = []
-        self.args.depth= True
-        self.args.evaluate= False
-        self.args.merge=False
-        # print('self.args.depth')
-        # print(self.args.depth)
-        # print('self.args.evaluate')
-        # print(self.args.evaluate)
+
         # Define Dataloader
         kwargs = {'num_workers':args.workers, 'pin_memory': False}
         _, self.val_loader, _, self.num_class = make_data_loader(args, **kwargs)
@@ -159,7 +153,6 @@ def main():
     parser.add_argument('--merge-label-save-path', type=str, default='E:/RFNet/test/merge/',
                         help='path to save merged label')
     parser.add_argument('--merge', action='store_true', default=False, help='merge image and label')
-    parser.add_argument('--evaluate', action='store_true', default=False, help='evaluate')
     parser.add_argument('--depth', action='store_true', default=False, help='add depth image or not')
 
 

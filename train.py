@@ -198,14 +198,12 @@ class Trainer(object):
             }, is_best)
 
 def main():
-    parser = argparse.ArgumentParser(description="PyTorch DeeplabV3Plus Training")
+    parser = argparse.ArgumentParser(description="PyTorch RFNet Training")
     parser.add_argument('--depth', action="store_true", default=False,
                         help='training with depth image or not (default: False)')
     parser.add_argument('--dataset', type=str, default='cityscapes',
                         choices=['citylostfound', 'cityscapes'],
                         help='dataset name (default: cityscapes)')
-    parser.add_argument('--use-sbd', action='store_true', default=True,
-                        help='whether to use SBD dataset when pascal (default: True)')
     parser.add_argument('--workers', type=int, default=4,
                         metavar='N', help='dataloader threads')
     parser.add_argument('--base-size', type=int, default=1024,
